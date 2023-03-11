@@ -2,7 +2,7 @@ import time
 import faster_than_requests
 
 
-lista = [("https://httpbin.org/get", str(i) + ".json") for i in range(25)]
+lista = [("https://httpbin.org/get", f"{str(i)}.json") for i in range(25)]
 
 
 time2 = time.time()

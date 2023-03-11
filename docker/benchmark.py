@@ -37,24 +37,35 @@ def run_test(library, url, repetitions, setup_test, run_test, timer=None):
     setup_cmd = string.Template(setup_test).substitute(url=url)
     mytime = timeit.timeit(stmt=run_cmd, setup=setup_cmd, number=repetitions, timer=TIMER)
     print(f"{library.upper()} =\t{round(mytime, 4)}\n")
-    result = [library, repetitions, mytime]
-    return result
+    return [library, repetitions, mytime]
 
 
 def run_all_benchmarks(url='', repetitions=10_000, output_file="results.csv", **kwargs):
     results = []
-    tests = []
     timer_type = kwargs.get('timer')
 
-    tests.append(('pywget', "import wget", "wget.download('$url', bar=None)"))
-    tests.append(('requests', 'import requests', "requests.get('$url', verify=False)"))
-    tests.append(('requests_session', requests_setups, "session.send(r, verify=False)"))
-    tests.append(('urllib',  "from urllib.request import urlopen", "urlopen('$url').read()"))
-    tests.append(('urllib3', "import urllib3; http_pool = urllib3.PoolManager()", "http_pool.urlopen('GET', '$url').read()"))
-    tests.append(('pycurl', pycurl_setups, "mycurl.perform()"))
-    tests.append(('pycurl_nossl', pycurl_setups_nossl, "mycurl.perform()"))
-    tests.append(('faster_than_requests', "import faster_than_requests", "faster_than_requests.get2str('$url')"))
-
+    tests = [
+        ('pywget', "import wget", "wget.download('$url', bar=None)"),
+        ('requests', 'import requests', "requests.get('$url', verify=False)"),
+        ('requests_session', requests_setups, "session.send(r, verify=False)"),
+        (
+            'urllib',
+            "from urllib.request import urlopen",
+            "urlopen('$url').read()",
+        ),
+        (
+            'urllib3',
+            "import urllib3; http_pool = urllib3.PoolManager()",
+            "http_pool.urlopen('GET', '$url').read()",
+        ),
+        ('pycurl', pycurl_setups, "mycurl.perform()"),
+        ('pycurl_nossl', pycurl_setups_nossl, "mycurl.perform()"),
+        (
+            'faster_than_requests',
+            "import faster_than_requests",
+            "faster_than_requests.get2str('$url')",
+        ),
+    ]
     for test in tests:
         my_result = run_test(test[0], url, repetitions, test[1], test[2], timer=timer_type)
         results.append((test[0], my_result[-1]))
